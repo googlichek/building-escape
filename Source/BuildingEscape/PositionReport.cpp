@@ -3,7 +3,6 @@
 #include "PositionReport.h"
 #include "GameFramework/Actor.h"
 
-
 // Sets default values for this component's properties
 UPositionReport::UPositionReport()
 {
@@ -12,21 +11,19 @@ UPositionReport::UPositionReport()
 	PrimaryComponentTick.bCanEverTick = true;
 }
 
-
 // Called when the game starts
 void UPositionReport::BeginPlay()
 {
 	Super::BeginPlay();
 
 	FString ObjectName = GetOwner() -> GetName();
+	FString ObjectPos = GetOwner() -> GetActorTransform().GetLocation().ToString();
 
-	UE_LOG(LogTemp, Warning, TEXT("Position report for %s."), *ObjectName);
+	UE_LOG(LogTemp, Warning, TEXT("%s is at %s."), *ObjectName, *ObjectPos);
 }
-
 
 // Called every frame
 void UPositionReport::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 }
-
