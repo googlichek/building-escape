@@ -107,6 +107,9 @@ void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 				Warning,
 				TEXT("%s's input component is in place."),
 				*GetOwner()->GetName())
+
+			InputComponent->BindAction("Grab", IE_Pressed, this, &UGrabber::Grab);
+			InputComponent->BindAction("Grab", IE_Released, this, &UGrabber::Grab);
 		}
 }
 
@@ -116,4 +119,12 @@ void UGrabber::Grab()
 		LogTemp,
 		Warning,
 		TEXT("Grab pressed."))
+}
+
+void UGrabber::Release()
+{
+	UE_LOG(
+		LogTemp,
+		Warning,
+		TEXT("Grab released."))
 }
