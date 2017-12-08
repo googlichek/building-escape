@@ -20,7 +20,7 @@ void UGrabber::BeginPlay()
 {
 	Super::BeginPlay();
 
-	UE_LOG(LogTemp, Warning, TEXT("Grabber log."));
+	//UE_LOG(LogTemp, Warning, TEXT("Grabber log."));
 
 	PhysicsHandle = GetOwner()->FindComponentByClass<UPhysicsHandleComponent>();
 	InputComponent = GetOwner()->FindComponentByClass<UInputComponent>();
@@ -36,12 +36,12 @@ void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 		OUT PlayerViewPointLocation,
 		OUT PlayerViewPointRotation);
 
-	UE_LOG(
+	/*UE_LOG(
 		LogTemp,
 		Warning,
 		TEXT("Location: %s, Rotation: %s"),
 		*PlayerViewPointLocation.ToString(),
-		*PlayerViewPointRotation.ToString())
+		*PlayerViewPointRotation.ToString())*/
 
 		FVector LineTraceEnd = PlayerViewPointLocation + PlayerViewPointRotation.Vector() * Reach;
 		DrawDebugLine(
@@ -85,11 +85,11 @@ void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 		}
 		else
 		{
-			UE_LOG(
+			/*UE_LOG(
 				LogTemp,
 				Warning,
 				TEXT("%s's physics handle component is in place."),
-				*GetOwner()->GetName())
+				*GetOwner()->GetName())*/
 		}
 
 		if (!InputComponent)
@@ -102,11 +102,11 @@ void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 		}
 		else
 		{
-			UE_LOG(
+			/*UE_LOG(
 				LogTemp,
 				Warning,
 				TEXT("%s's input component is in place."),
-				*GetOwner()->GetName())
+				*GetOwner()->GetName())*/
 
 			InputComponent->BindAction("Grab", IE_Pressed, this, &UGrabber::Grab);
 			InputComponent->BindAction("Grab", IE_Released, this, &UGrabber::Grab);
