@@ -20,105 +20,110 @@ void UGrabber::BeginPlay()
 {
 	Super::BeginPlay();
 
-	//UE_LOG(LogTemp, Warning, TEXT("Grabber log."));
-
-	PhysicsHandle = GetOwner()->FindComponentByClass<UPhysicsHandleComponent>();
-	InputComponent = GetOwner()->FindComponentByClass<UInputComponent>();
+	FindPhysicsHandleComponent();
+	SetupInputComponent();
 }
 
 // Called every frame
 void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+}
+
+void UGrabber::FindPhysicsHandleComponent()
+{
+	PhysicsHandle = GetOwner()->FindComponentByClass<UPhysicsHandleComponent>();
+
+	if (!PhysicsHandle)
+	{
+		UE_LOG(
+			LogTemp,
+			Error,
+			TEXT("%s is missing physics handle component."),
+			*GetOwner()->GetName())
+	}
+	else
+	{
+		UE_LOG(
+		LogTemp,
+		Warning,
+		TEXT("%s's physics handle component is in place."),
+		*GetOwner()->GetName())
+	}
+}
+
+void UGrabber::SetupInputComponent()
+{
+	InputComponent = GetOwner()->FindComponentByClass<UInputComponent>();
+
+	if (InputComponent)
+	{
+		UE_LOG(
+		LogTemp,
+		Warning,
+		TEXT("%s's input component is in place."),
+		*GetOwner()->GetName())
+
+		InputComponent->BindAction("Grab", IE_Pressed, this, &UGrabber::Grab);
+		InputComponent->BindAction("Grab", IE_Released, this, &UGrabber::Grab);
+
+	}
+	else
+	{
+		UE_LOG(
+			LogTemp,
+			Error,
+			TEXT("%s is missing input component."),
+			*GetOwner()->GetName())
+	}
+}
+
+FHitResult UGrabber::GetFirstPhysicsBodyInReach()
+{
 	FVector PlayerViewPointLocation;
 	FRotator PlayerViewPointRotation;
 	GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(
 		OUT PlayerViewPointLocation,
 		OUT PlayerViewPointRotation);
 
-	/*UE_LOG(
-		LogTemp,
-		Warning,
-		TEXT("Location: %s, Rotation: %s"),
-		*PlayerViewPointLocation.ToString(),
-		*PlayerViewPointRotation.ToString())*/
+	/*FVector LineTraceEnd = PlayerViewPointLocation + PlayerViewPointRotation.Vector() * Reach;
+	DrawDebugLine(
+		GetWorld(),
+		PlayerViewPointLocation,
+		LineTraceEnd,
+		FColor(255, 0, 0),
+		false,
+		0.0f,
+		0.0f,
+		10.0f);*/
 
-		FVector LineTraceEnd = PlayerViewPointLocation + PlayerViewPointRotation.Vector() * Reach;
-		DrawDebugLine(
-			GetWorld(),
-			PlayerViewPointLocation,
-			LineTraceEnd,
-			FColor(255, 0, 0),
-			false,
-			0.0f,
-			0.0f,
-			10.0f);
+	FCollisionQueryParams TraceParameters(FName(TEXT("")), false, GetOwner());
+	FHitResult Hit;
+	GetWorld()->LineTraceSingleByObjectType(
+		OUT Hit,
+		PlayerViewPointLocation,
+		LineTraceEnd,
+		FCollisionObjectQueryParams(ECollisionChannel::ECC_PhysicsBody),
+		TraceParameters);
 
+	AActor* ActorHit = Hit.GetActor();
 
-		FCollisionQueryParams TraceParameters(FName(TEXT("")), false, GetOwner());
-		FHitResult Hit;
-		GetWorld()->LineTraceSingleByObjectType(
-			OUT Hit,
-			PlayerViewPointLocation,
-			LineTraceEnd,
-			FCollisionObjectQueryParams(ECollisionChannel::ECC_PhysicsBody),
-			TraceParameters);
+	if (ActorHit)
+	{
+		UE_LOG(
+			LogTemp,
+			Warning,
+			TEXT("Line trace hit: %s"),
+			*ActorHit->GetName())
+	}
 
-		AActor* ActorHit = Hit.GetActor();
-
-		if (ActorHit)
-		{
-			UE_LOG(
-				LogTemp,
-				Warning,
-				TEXT("Line trace hit: %s"),
-				*ActorHit->GetName())
-		}
-
-		if (!PhysicsHandle)
-		{
-			UE_LOG(
-				LogTemp,
-				Error,
-				TEXT("%s is missing physics handle component."),
-				*GetOwner()->GetName())
-		}
-		else
-		{
-			/*UE_LOG(
-				LogTemp,
-				Warning,
-				TEXT("%s's physics handle component is in place."),
-				*GetOwner()->GetName())*/
-		}
-
-		if (!InputComponent)
-		{
-			UE_LOG(
-				LogTemp,
-				Error,
-				TEXT("%s is missing input component."),
-				*GetOwner()->GetName())
-		}
-		else
-		{
-			/*UE_LOG(
-				LogTemp,
-				Warning,
-				TEXT("%s's input component is in place."),
-				*GetOwner()->GetName())*/
-
-			InputComponent->BindAction("Grab", IE_Pressed, this, &UGrabber::Grab);
-			InputComponent->BindAction("Grab", IE_Released, this, &UGrabber::Grab);
-		}
+	return Hit;
 }
 
 void UGrabber::Grab()
 {
-	UE_LOG(
-		LogTemp,
-		Warning,
-		TEXT("Grab pressed."))
+	UE_LOG(LogTemp, Warning, TEXT("Grab pressed."))
+	GetFirstPhysicsBodyInReach();
 }
 
 void UGrabber::Release()
