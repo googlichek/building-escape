@@ -39,6 +39,7 @@ private:
 	ATriggerVolume* PressurePlate;
 	
 	UPROPERTY(EditAnywhere)
-	AActor* ActorThatOpens;
 	AActor* Owner;
+
+	float GetTotalMassOfActorsOnPlate();
 };
